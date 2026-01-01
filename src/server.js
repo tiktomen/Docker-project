@@ -1,22 +1,50 @@
-const fastify = require('fastify')({ logger: true });
-const fastifyCors = require('@fastify/cors')
-require('dotenv').config();
+const fastify = require("fastify")({ logger: true });
+const fastifyCors = require("@fastify/cors");
+const fastifySwagger = require("@fastify/swagger");
+const fastifySwaggerUi = require("@fastify/swagger-ui");
 
-fastify.register(fastifyCors, { origin: '*' })
+const { initPg } = require("./infrastructure/db/pg");
+const buildContext = require("./context/context");
+const patchRoutes = require("./presentation/routes/index");
+require("dotenv").config();
 
+fastify.register(fastifyCors, { origin: "*" });
 
-// Роутинг
-fastify.register(require('./routes/pgRoutes'));
-fastify.register(require('./routes/mongoRoutes'));
+fastify.register(fastifySwagger, {
+    swagger: {
+        info: {
+            title: "API documentation",
+            description: "Fastify + Mongo + PG API",
+            version: "1.0.0",
+        },
+        host: "localhost:3000",
+        schemes: ["http"],
+        consumes: ["application/json"],
+        produces: ["application/json"],
+    },
+});
+
+fastify.register(fastifySwaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: {
+        docExpansion: "list",
+        deepLinking: false,
+    },
+    staticCSP: true,
+});
 
 const start = async () => {
-  try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' });
-    console.log('Server running on http://localhost:3000');
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
+    try {
+        await initPg();
+        await buildContext(fastify);
+        patchRoutes(fastify);
+
+        await fastify.listen({ port: 3000, host: "0.0.0.0" });
+        console.log("Server running on http://localhost:3000");
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
 };
 
 start();
