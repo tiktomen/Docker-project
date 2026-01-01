@@ -1,11 +1,11 @@
 async function clientRoutes(fastify) {
     const { client } = fastify.actions;
 
-    fastify.addHook("preHandler", async (req) => {
-        if (["GET", "POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
-            await fastify.authenticate(req);
-        }
-    });
+    // fastify.addHook("preHandler", async (req) => {
+    //     if (["GET", "POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+    //         await fastify.authenticate(req);
+    //     }
+    // });
 
     fastify.get(
         "/api/mongo/clients/:id",
@@ -29,10 +29,33 @@ async function clientRoutes(fastify) {
         {
             schema: {
                 tags: ["Client"],
+                querystring: {
+                    type: "object",
+                    properties: {
+                        page: {
+                            type: "integer",
+                            minimum: 1,
+                            default: 1,
+                            description: "Номер сторінки",
+                        },
+                        limit: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: 100,
+                            default: 10,
+                            description: "Кількість елементів на сторінку",
+                        },
+                        search: {
+                            type: "string",
+                            description: "Пошук за ім'ям або email",
+                        },
+                    },
+                },
             },
         },
-        async () => {
-            return client.getAll.execute();
+        async (req) => {
+            const { page, limit, search } = req.query;
+            return client.getAll.execute({ page, limit, search });
         }
     );
 

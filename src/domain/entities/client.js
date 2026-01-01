@@ -15,6 +15,17 @@ class Client {
     updateEmail(newEmail) {
         this.email = newEmail;
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            name: this.name,
+            email: this.email,
+            role: this.role,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+        };
+    }
 }
 
 module.exports = Client;

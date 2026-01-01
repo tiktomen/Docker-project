@@ -3,8 +3,8 @@ class GetAllClients {
         this.clientService = clientService;
     }
 
-    async execute() {
-        return await this.clientService.getAll();
+    async execute(options = {}) {
+        return await this.clientService.getAll(options);
     }
 }
 

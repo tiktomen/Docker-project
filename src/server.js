@@ -9,6 +9,8 @@ const buildContext = require("./context/context");
 const patchRoutes = require("./presentation/routes/index");
 const authMiddleware = require("./middleware/auth.middleware");
 
+const { pingRedis } = require("./adapters/redis");
+
 fastify.register(require("@fastify/cookie"));
 fastify.register(require("@fastify/sensible"));
 fastify.register(require("@fastify/request-context"));
@@ -41,6 +43,8 @@ fastify.register(fastifySwaggerUi, {
 
 const start = async () => {
     try {
+        await pingRedis();
+
         await initPg();
         await buildContext(fastify);
         await authMiddleware(fastify);

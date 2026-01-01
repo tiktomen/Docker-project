@@ -33,9 +33,32 @@ class ClientRepositoryImpl extends ClientRepository {
         });
     }
 
-    async getAll() {
-        const docs = await ClientModel.find().exec();
-        return docs.map(
+    async getAll(options = {}) {
+        const page = Math.max(1, options.page || 1);
+        const limit = Math.max(1, Math.min(100, options.limit || 10));
+        const search = options.search?.trim() || "";
+        const skip = (page - 1) * limit;
+
+        const filter = search
+            ? {
+                  $or: [
+                      { name: { $regex: search, $options: "i" } },
+                      { email: { $regex: search, $options: "i" } },
+                  ],
+              }
+            : {};
+
+        const [docs, total] = await Promise.all([
+            ClientModel.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+                .exec(),
+            ClientModel.countDocuments(filter).exec(),
+        ]);
+
+        const clients = docs.map(
             (doc) =>
                 new Client({
                     id: doc._id.toString(),
@@ -46,6 +69,14 @@ class ClientRepositoryImpl extends ClientRepository {
                     updatedAt: doc.updatedAt,
                 })
         );
+
+        return {
+            data: clients,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async create(client) {

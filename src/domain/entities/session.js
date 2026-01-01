@@ -9,6 +9,15 @@ class Session {
     isExpired() {
         return this.expiresAt < new Date();
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            userId: this.userId,
+            expiresAt: this.expiresAt,
+            createdAt: this.createdAt,
+        };
+    }
 }
 
 module.exports = Session;

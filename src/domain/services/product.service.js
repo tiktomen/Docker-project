@@ -1,11 +1,34 @@
+const { redis } = require("../../adapters/redis");
+
+const PRODUCT_CACHE_TTL = 300; // 5 хвилин
+
+function buildProductCacheKey(id) {
+    return `product:${id}`;
+}
+
 class ProductService {
     constructor(productRepository) {
         this.products = productRepository;
     }
 
     async getById(id) {
+        const cacheKey = buildProductCacheKey(id);
+
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+
         const product = await this.products.getById(id);
         if (!product) throw new Error("Product not found");
+
+        await redis.set(
+            cacheKey,
+            JSON.stringify(product),
+            "EX",
+            PRODUCT_CACHE_TTL
+        );
+
         return product;
     }
 
@@ -29,12 +52,18 @@ class ProductService {
             product.updateStock(data.stock - product.stock);
 
         product.updatedAt = new Date();
-        return await this.products.update(product);
+        const result = await this.products.update(product);
+
+        await redis.del(`product:${id}`);
+
+        return result;
     }
 
     async delete(id) {
         await this.getById(id);
-        return await this.products.delete(id);
+        await this.products.delete(id);
+
+        await redis.del(`product:${id}`);
     }
 }
 

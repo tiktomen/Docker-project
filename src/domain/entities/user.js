@@ -5,6 +5,14 @@ class User {
         this.passwordHash = passwordHash;
         this.createdAt = createdAt;
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            username: this.username,
+            createdAt: this.createdAt,
+        };
+    }
 }
 
 module.exports = User;
