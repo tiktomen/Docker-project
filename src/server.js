@@ -18,28 +18,30 @@ fastify.register(require("@fastify/auth"));
 
 fastify.register(fastifyCors, { origin: "*" });
 
-fastify.register(fastifySwagger, {
-    swagger: {
-        info: {
-            title: "API documentation",
-            description: "Fastify + Mongo + PG API",
-            version: "1.0.0",
+if (process.env.NODE_ENV !== "production") {
+    fastify.register(fastifySwagger, {
+        swagger: {
+            info: {
+                title: "API documentation",
+                description: "Fastify + Mongo + PG API",
+                version: "1.0.0",
+            },
+            host: "localhost:3000",
+            schemes: ["http"],
+            consumes: ["application/json"],
+            produces: ["application/json"],
         },
-        host: "localhost:3000",
-        schemes: ["http"],
-        consumes: ["application/json"],
-        produces: ["application/json"],
-    },
-});
+    });
 
-fastify.register(fastifySwaggerUi, {
-    routePrefix: "/docs",
-    uiConfig: {
-        docExpansion: "list",
-        deepLinking: false,
-    },
-    staticCSP: true,
-});
+    fastify.register(fastifySwaggerUi, {
+        routePrefix: "/docs",
+        uiConfig: {
+            docExpansion: "list",
+            deepLinking: false,
+        },
+        staticCSP: true,
+    });
+}
 
 const start = async () => {
     try {
