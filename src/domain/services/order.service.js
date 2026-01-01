@@ -1,16 +1,16 @@
 const Order = require("../entities/order");
 
 class OrderService {
-    constructor(orders, users, products) {
+    constructor(orders, clients, products) {
         this.orders = orders;
-        this.users = users;
+        this.clients = clients;
         this.products = products;
     }
 
     async create(customerId, items) {
-        const user = await this.users.getById(customerId);
-        if (!user) {
-            throw new Error("User not found");
+        const client = await this.clients.getById(customerId);
+        if (!client) {
+            throw new Error("Client not found");
         }
 
         let totalPrice = 0;

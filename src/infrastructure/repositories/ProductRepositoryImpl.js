@@ -1,6 +1,6 @@
 const ProductRepository = require("../../domain/repositories/product.repository");
 const Product = require("../../domain/entities/product");
-const ProductModel = require("../models/mongo/Product");
+const ProductModel = require("../models/mongo/product.model");
 
 class ProductRepositoryImpl extends ProductRepository {
     async getById(id) {

@@ -1,11 +1,17 @@
-async function userRoutes(fastify) {
-    const { user } = fastify.actions;
+async function clientRoutes(fastify) {
+    const { client } = fastify.actions;
+
+    fastify.addHook("preHandler", async (req) => {
+        if (["GET", "POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+            await fastify.authenticate(req);
+        }
+    });
 
     fastify.get(
-        "/api/mongo/users/:id",
+        "/api/mongo/clients/:id",
         {
             schema: {
-                tags: ["User"],
+                tags: ["Client"],
                 params: {
                     type: "object",
                     required: ["id"],
@@ -14,27 +20,27 @@ async function userRoutes(fastify) {
             },
         },
         async (req) => {
-            return user.getById.execute(req.params.id);
+            return client.getById.execute(req.params.id);
         }
     );
 
     fastify.get(
-        "/api/mongo/users",
+        "/api/mongo/clients",
         {
             schema: {
-                tags: ["User"],
+                tags: ["Client"],
             },
         },
         async () => {
-            return user.getAll.execute();
+            return client.getAll.execute();
         }
     );
 
     fastify.post(
-        "/api/mongo/users",
+        "/api/mongo/clients",
         {
             schema: {
-                tags: ["User"],
+                tags: ["Client"],
                 body: {
                     type: "object",
                     required: ["name", "email"],
@@ -47,15 +53,15 @@ async function userRoutes(fastify) {
             },
         },
         async (req) => {
-            return user.create.execute(req.body);
+            return client.create.execute(req.body);
         }
     );
 
     fastify.put(
-        "/api/mongo/users/:id",
+        "/api/mongo/clients/:id",
         {
             schema: {
-                tags: ["User"],
+                tags: ["Client"],
                 params: {
                     type: "object",
                     required: ["id"],
@@ -72,15 +78,15 @@ async function userRoutes(fastify) {
             },
         },
         async (req) => {
-            return user.update.execute(req.params.id, req.body);
+            return client.update.execute(req.params.id, req.body);
         }
     );
 
     fastify.delete(
-        "/api/mongo/users/:id",
+        "/api/mongo/clients/:id",
         {
             schema: {
-                tags: ["User"],
+                tags: ["Client"],
                 params: {
                     type: "object",
                     required: ["id"],
@@ -89,9 +95,9 @@ async function userRoutes(fastify) {
             },
         },
         async (req) => {
-            return user.delete.execute(req.params.id);
+            return client.delete.execute(req.params.id);
         }
     );
 }
 
-module.exports = userRoutes;
+module.exports = clientRoutes;

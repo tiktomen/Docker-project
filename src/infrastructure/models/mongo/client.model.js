@@ -1,6 +1,6 @@
 const mongoose = require("../../db/mongo");
 
-const userSchema = new mongoose.Schema(
+const clientSchema = new mongoose.Schema(
     {
         name: { type: String, required: true },
         email: { type: String, required: true, unique: true },
@@ -11,6 +11,6 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-const User = mongoose.model("User", userSchema);
+const Client = mongoose.model("Client", clientSchema);
 
-module.exports = User;
+module.exports = Client;

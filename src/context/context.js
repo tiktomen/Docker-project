@@ -1,16 +1,18 @@
-const UserRepositoryImpl = require("./../infrastructure/repositories/UserRepositoryImpl");
+const ClientRepositoryImpl = require("./../infrastructure/repositories/ClientRepositoryImpl");
 const ProductRepositoryImpl = require("./../infrastructure/repositories/ProductRepositoryImpl");
 const OrderRepositoryImpl = require("./../infrastructure/repositories/OrderRepositoryImpl");
+const UserRepositoryImpl = require("./../infrastructure/repositories/UserRepositoryImpl");
+const SessionRepositoryImpl = require("./../infrastructure/repositories/SessionRepositoryImpl");
 
 const OrderService = require("./../domain/services/order.service");
-const UserService = require("./../domain/services/user.service");
+const ClientService = require("./../domain/services/client.service");
 const ProductService = require("./../domain/services/product.service");
 
-const CreateUser = require("../application/actions/user/CreateUser");
-const GetUserById = require("../application/actions/user/GetUserById");
-const GetAllUsers = require("../application/actions/user/GetAllUsers");
-const UpdateUser = require("../application/actions/user/UpdateUser");
-const DeleteUser = require("../application/actions/user/DeleteUser");
+const CreateClient = require("../application/actions/client/CreateClient");
+const GetClientById = require("../application/actions/client/GetClientById");
+const GetAllClients = require("../application/actions/client/GetAllClients");
+const UpdateClient = require("../application/actions/client/UpdateClient");
+const DeleteClient = require("../application/actions/client/DeleteClient");
 
 const CreateProduct = require("../application/actions/product/CreateProduct");
 const GetProductById = require("../application/actions/product/GetProductById");
@@ -22,25 +24,30 @@ const GetOrderById = require("../application/actions/order/GetOrderById");
 const UpdateOrder = require("../application/actions/order/UpdateOrder");
 const DeleteOrder = require("../application/actions/order/DeleteOrder");
 
+const LoginUser = require("../application/actions/auth/LoginUser");
+const RegisterUser = require("../application/actions/auth/RegisterUser");
+
 function buildContext(fastify) {
-    const userRepository = new UserRepositoryImpl();
+    const clientRepository = new ClientRepositoryImpl();
     const productRepository = new ProductRepositoryImpl();
     const orderRepository = new OrderRepositoryImpl();
+    const userRepository = new UserRepositoryImpl();
+    const sessionRepository = new SessionRepositoryImpl();
 
     const orderService = new OrderService(
         orderRepository,
-        userRepository,
+        clientRepository,
         productRepository
     );
-    const userService = new UserService(userRepository);
+    const clientService = new ClientService(clientRepository);
     const productService = new ProductService(productRepository);
 
-    const userActions = {
-        create: new CreateUser(userService),
-        getById: new GetUserById(userService),
-        getAll: new GetAllUsers(userService),
-        update: new UpdateUser(userService),
-        delete: new DeleteUser(userService),
+    const clientActions = {
+        create: new CreateClient(clientService),
+        getById: new GetClientById(clientService),
+        getAll: new GetAllClients(clientService),
+        update: new UpdateClient(clientService),
+        delete: new DeleteClient(clientService),
     };
 
     const productActions = {
@@ -57,21 +64,29 @@ function buildContext(fastify) {
         delete: new DeleteOrder(orderService),
     };
 
+    const authActions = {
+        login: new LoginUser(userRepository, sessionRepository),
+        register: new RegisterUser(userRepository),
+    };
+
     fastify.decorate("actions", {
-        user: userActions,
+        client: clientActions,
         product: productActions,
         order: orderActions,
+        auth: authActions,
     });
 
     fastify.decorate("repositories", {
-        userRepository,
+        clientRepository,
         productRepository,
         orderRepository,
+        userRepository,
+        sessionRepository,
     });
 
     fastify.decorate("services", {
         orderService,
-        userService,
+        clientService,
         productService,
     });
 }

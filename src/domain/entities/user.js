@@ -1,19 +1,9 @@
 class User {
-    constructor({ id, name, email, role, createdAt, updatedAt }) {
+    constructor({ id, username, passwordHash, createdAt }) {
         this.id = id;
-        this.name = name;
-        this.email = email;
-        this.role = role;
+        this.username = username;
+        this.passwordHash = passwordHash;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    isAdmin() {
-        return this.role === "admin";
-    }
-
-    updateEmail(newEmail) {
-        this.email = newEmail;
     }
 }
 

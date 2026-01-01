@@ -1,95 +1,34 @@
-const UserRepository = require("../../domain/repositories/user.repository");
+const bcrypt = require("bcrypt");
 const User = require("../../domain/entities/user");
-const UserModel = require("../models/mongo/User");
+const UserModel = require("../models/mongo/user.model");
 
-class UserRepositoryImpl extends UserRepository {
-    async getById(id) {
-        if (!id) return null;
+class UserRepositoryImpl {
+    async create(username, password) {
+        const passwordHash = await bcrypt.hash(password, 10);
 
-        const doc = await UserModel.findById(id).exec();
-        if (!doc) return null;
-
-        return new User({
-            id: doc._id.toString(),
-            name: doc.name,
-            email: doc.email,
-            role: doc.role,
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-        });
-    }
-
-    async getByEmail(email) {
-        const doc = await UserModel.findOne({ email }).exec();
-        if (!doc) return null;
-
-        return new User({
-            id: doc._id.toString(),
-            name: doc.name,
-            email: doc.email,
-            role: doc.role,
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-        });
-    }
-
-    async getAll() {
-        const docs = await UserModel.find().exec();
-        return docs.map(
-            (doc) =>
-                new User({
-                    id: doc._id.toString(),
-                    name: doc.name,
-                    email: doc.email,
-                    role: doc.role,
-                    createdAt: doc.createdAt,
-                    updatedAt: doc.updatedAt,
-                })
-        );
-    }
-
-    async create(user) {
         const doc = await UserModel.create({
-            name: user.name,
-            email: user.email,
-            role: user.role,
+            username,
+            passwordHash,
         });
 
         return new User({
             id: doc._id.toString(),
-            name: doc.name,
-            email: doc.email,
-            role: doc.role,
+            username: doc.username,
+            passwordHash: doc.passwordHash,
             createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
         });
     }
 
-    async update(user) {
-        const doc = await UserModel.findByIdAndUpdate(
-            user.id,
-            {
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
-            { new: true }
-        ).exec();
-
+    async findByUsername(username) {
+        const doc = await UserModel.findOne({ username });
         if (!doc) return null;
 
         return new User({
             id: doc._id.toString(),
-            name: doc.name,
-            email: doc.email,
-            role: doc.role,
+            username: doc.username,
+            passwordHash: doc.passwordHash,
             createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
         });
-    }
-
-    async delete(id) {
-        await UserModel.findByIdAndDelete(id).exec();
     }
 }
 

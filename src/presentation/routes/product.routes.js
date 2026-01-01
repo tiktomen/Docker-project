@@ -1,6 +1,12 @@
 async function productRoutes(fastify) {
     const { product } = fastify.actions;
 
+    fastify.addHook("preHandler", async (req) => {
+        if (["GET", "POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+            await fastify.authenticate(req);
+        }
+    });
+
     fastify.get(
         "/api/mongo/products/:id",
         {

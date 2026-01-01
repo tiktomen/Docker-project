@@ -1,4 +1,4 @@
-class UserRepository {
+class ClientRepository {
     getAll() {
         throw new Error("Not implemented.");
     }
@@ -24,4 +24,4 @@ class UserRepository {
     }
 }
 
-module.exports = UserRepository;
+module.exports = ClientRepository;

@@ -2,11 +2,17 @@ const fastify = require("fastify")({ logger: true });
 const fastifyCors = require("@fastify/cors");
 const fastifySwagger = require("@fastify/swagger");
 const fastifySwaggerUi = require("@fastify/swagger-ui");
+require("dotenv").config();
 
 const { initPg } = require("./infrastructure/db/pg");
 const buildContext = require("./context/context");
 const patchRoutes = require("./presentation/routes/index");
-require("dotenv").config();
+const authMiddleware = require("./middleware/auth.middleware");
+
+fastify.register(require("@fastify/cookie"));
+fastify.register(require("@fastify/sensible"));
+fastify.register(require("@fastify/request-context"));
+fastify.register(require("@fastify/auth"));
 
 fastify.register(fastifyCors, { origin: "*" });
 
@@ -37,6 +43,7 @@ const start = async () => {
     try {
         await initPg();
         await buildContext(fastify);
+        await authMiddleware(fastify);
         patchRoutes(fastify);
 
         await fastify.listen({ port: 3000, host: "0.0.0.0" });

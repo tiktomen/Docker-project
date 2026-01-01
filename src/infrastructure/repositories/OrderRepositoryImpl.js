@@ -1,7 +1,7 @@
 const OrderRepository = require("../../domain/repositories/order.repository");
 const mongoose = require("../db/mongo");
 const Order = require("../../domain/entities/order");
-const OrderModel = require("../models/mongo/Order");
+const OrderModel = require("../models/mongo/order.model");
 
 class OrderRepositoryImpl extends OrderRepository {
     async create(order) {

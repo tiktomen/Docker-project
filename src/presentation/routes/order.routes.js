@@ -1,6 +1,12 @@
 async function orderRoutes(fastify) {
     const { order } = fastify.actions;
 
+    fastify.addHook("preHandler", async (req) => {
+        if (["GET", "POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+            await fastify.authenticate(req);
+        }
+    });
+
     fastify.post(
         "/api/mongo/orders",
         {
